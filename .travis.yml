@@ -1,0 +1,25 @@
+language: php
+
+php:
+  - 5.6
+  - 7
+  - hhvm
+
+sudo: false
+
+install:
+  - composer selfupdate
+  - composer install
+  - composer global require schnittstabil/sugared-php_codesniffer fabpot/php-cs-fixer
+  - export PATH=$PATH:`composer global config bin-dir --absolute`
+
+script:
+  - composer test
+
+after_success:
+  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then vendor/bin/test-reporter; fi
+  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then vendor/bin/coveralls -v; fi
+
+addons:
+  code_climate:
+    repo_token: aa34b7adcdefe14e84c8291fa0201919be5cdf59b702f8ad87fb7863af9a17af
