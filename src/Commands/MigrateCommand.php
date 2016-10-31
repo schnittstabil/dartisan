@@ -6,36 +6,34 @@ use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\Migrator;
 
-class MigrateCommand
+class MigrateCommand extends Command
 {
     use DatabaseAwareCommandTrait;
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate';
-    protected $args;
     protected $migrator;
     protected $defaultPath;
-    protected $outputFormatter;
 
-    public function __construct(Args $args, Migrator $migrator, $defaultPath, callable $outputFormatter)
-    {
-        $this->args = $args;
+    public function __construct(
+        Args $args,
+        callable $outputFormatter,
+        Migrator $migrator,
+        $defaultPath
+    ) {
+        parent::__construct($args, $outputFormatter);
         $this->migrator = $migrator;
         $this->defaultPath = $defaultPath;
-        $this->outputFormatter = $outputFormatter;
     }
 
-    public function __invoke()
+    public function run()
     {
         $path = $this->args->getOpt('path', $this->defaultPath);
         $this->migrator->run($path, [
             'pretend' => $this->args->getOpt('pretend', null),
             'step' => $this->args->getOpt('step', null),
         ]);
-
-        foreach ($this->migrator->getNotes() as $note) {
-            echo call_user_func($this->outputFormatter, $note).PHP_EOL;
-        }
+        $this->echoNotes($this->migrator->getNotes());
 
         return 0;
     }

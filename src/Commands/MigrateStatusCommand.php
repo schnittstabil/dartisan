@@ -7,29 +7,30 @@ use Garden\Cli\Args;
 use Garden\Cli\Table;
 use Illuminate\Database\Migrations\Migrator;
 
-class MigrateStatusCommand
+class MigrateStatusCommand extends Command
 {
     use DatabaseAwareCommandTrait;
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:status';
-    protected $args;
     protected $migrator;
     protected $migrationsPath;
-    protected $outputFormatter;
 
-    public function __construct(Args $args, Migrator $migrator, $migrationsPath, callable $outputFormatter)
-    {
-        $this->args = $args;
+    public function __construct(
+        Args $args,
+        callable $outputFormatter,
+        Migrator $migrator,
+        $migrationsPath
+    ) {
+        parent::__construct($args, $outputFormatter);
         $this->migrator = $migrator;
         $this->migrationsPath = $migrationsPath;
-        $this->outputFormatter = $outputFormatter;
     }
 
-    public function __invoke()
+    public function run()
     {
         if (!$this->migrator->repositoryExists()) {
-            echo call_user_func($this->outputFormatter, '<error>No migration table found.</error>').PHP_EOL;
+            $this->echoError('No migration table found.');
 
             return 1;
         }
@@ -37,28 +38,39 @@ class MigrateStatusCommand
         $path = $this->args->getOpt('path', $this->migrationsPath);
         $ran = $this->migrator->getRepository()->getRan();
         $migrationFiles = $this->migrator->getMigrationFiles($path);
+        $this->echoMigrationTable($ran, $migrationFiles);
 
+        return 0;
+    }
+
+    /**
+     * @SuppressWarnings(PHPMD.ElseExpression)
+     **/
+    protected function echoMigrationTable($ran, $migrationFiles)
+    {
         if (count($migrationFiles) === 0) {
-            echo call_user_func($this->outputFormatter, '<info>No migration files found</info> ').PHP_EOL;
+            $this->echoInfo('No migration files found.');
 
-            return 0;
+            return;
         }
 
         $table = new Table();
-        $table
-            ->row()
-            ->bold('Ran')
-            ->bold('Migration');
+        $table->row()->bold('Ran')->bold('Migration');
 
         foreach ($migrationFiles as $migration) {
+            $migrationName = $this->migrator->getMigrationName($migration);
             $table->row();
-            in_array($migration, $ran) ? $table->green('Y') : $table->red('N');
-            $table->cell($migration);
+
+            if (in_array($migrationName, $ran)) {
+                $table->green('Y');
+            } else {
+                $table->red('N');
+            }
+
+            $table->cell($migrationName);
         }
 
         $table->write();
-
-        return 0;
     }
 
     public static function register(Cli $cli)

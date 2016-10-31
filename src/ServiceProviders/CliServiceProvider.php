@@ -17,7 +17,7 @@ class CliServiceProvider
             $cli = new Cli();
 
             foreach ($c->get('commands') as $class) {
-                call_user_func([$class, 'register'], $cli);
+                $class::register($cli);
             }
 
             return $cli;

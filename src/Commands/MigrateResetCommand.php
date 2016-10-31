@@ -6,37 +6,38 @@ use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\Migrator;
 
-class MigrateResetCommand
+class MigrateResetCommand extends Command
 {
     use DatabaseAwareCommandTrait;
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:reset';
-    protected $args;
     protected $migrator;
-    protected $outputFormatter;
+    protected $migrationsPath;
 
-    public function __construct(Args $args, Migrator $migrator, callable $outputFormatter)
-    {
-        $this->args = $args;
+    public function __construct(
+        Args $args,
+        callable $outputFormatter,
+        Migrator $migrator,
+        $migrationsPath
+    ) {
+        parent::__construct($args, $outputFormatter);
         $this->migrator = $migrator;
-        $this->outputFormatter = $outputFormatter;
+        $this->migrationsPath = $migrationsPath;
     }
 
-    public function __invoke()
+    public function run()
     {
         if (!$this->migrator->repositoryExists()) {
-            echo call_user_func($this->outputFormatter, '<error>No migration table found.</error>').PHP_EOL;
+            $this->echoError('No migration table found.');
 
             return 1;
         }
 
-        $pretend = $this->args->getOpt('pretend');
-        $this->migrator->reset($pretend);
-
-        foreach ($this->migrator->getNotes() as $note) {
-            echo call_user_func($this->outputFormatter, $note).PHP_EOL;
-        }
+        $path = $this->args->getOpt('path', $this->migrationsPath);
+        $pretend = $this->args->getOpt('pretend', false);
+        $this->migrator->reset($path, $pretend);
+        $this->echoNotes($this->migrator->getNotes());
 
         return 0;
     }

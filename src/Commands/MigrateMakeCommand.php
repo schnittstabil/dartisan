@@ -6,30 +6,27 @@ use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\MigrationCreator;
 
-class MigrateMakeCommand
+class MigrateMakeCommand extends Command
 {
     use DatabaseAwareCommandTrait;
     use MigrationAwareCommandTrait;
 
     public static $name = 'make:migration';
-    protected $args;
     protected $migrationCreator;
     protected $migrationsPath;
-    protected $outputFormatter;
 
     public function __construct(
         Args $args,
+        callable $outputFormatter,
         MigrationCreator $migrationCreator,
-        $migrationsPath,
-        callable $outputFormatter
+        $migrationsPath
     ) {
-        $this->args = $args;
+        parent::__construct($args, $outputFormatter);
         $this->migrationCreator = $migrationCreator;
         $this->migrationsPath = $migrationsPath;
-        $this->outputFormatter = $outputFormatter;
     }
 
-    public function __invoke()
+    public function run()
     {
         $name = trim($this->args->getArg('name'));
         $path = $this->args->getOpt('path', $this->migrationsPath);
@@ -37,7 +34,9 @@ class MigrateMakeCommand
         $table = $this->args->getOpt('table', $create);
 
         $file = pathinfo($this->migrationCreator->create($name, $path, $table, $create), PATHINFO_FILENAME);
-        echo call_user_func($this->outputFormatter, "<info>Created Migration:</info> $file").PHP_EOL;
+        $this->echoInfo('Created Migration:', false);
+        $this->echoRaw(' ', false);
+        $this->echoRaw($file);
 
         return 0;
     }

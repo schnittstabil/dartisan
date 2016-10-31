@@ -14,9 +14,9 @@ use Schnittstabil\Dartisan\Container;
  */
 class DatabaseServiceProvider
 {
-    public function __invoke(Container $container)
+    protected function setCapsule(Container $c)
     {
-        $container->set(Capsule::class, function (Container $c) {
+        $c->set(Capsule::class, function (Container $c) {
             $capsule = new Capsule();
             $capsule->addConnection($c->getNamespace('connection'));
             $capsule->bootEloquent();
@@ -24,24 +24,41 @@ class DatabaseServiceProvider
 
             return $capsule;
         });
+    }
 
-        $container->set(DatabaseMigrationRepository::class, function (Container $c) {
+    protected function setDatabaseMigrationRepository(Container $c)
+    {
+        $c->set(DatabaseMigrationRepository::class, function (Container $c) {
             return new DatabaseMigrationRepository(
                 $c->get(Capsule::class)->getDatabaseManager(),
                 $c->get('migration-table')
             );
         });
+    }
 
-        $container->set(Migrator::class, function (Container $c) {
+    protected function setMigrator(Container $c)
+    {
+        $c->set(Migrator::class, function (Container $c) {
             return new Migrator(
                 $c->get(DatabaseMigrationRepository::class),
                 $c->get(Capsule::class)->getDatabaseManager(),
                 $c->get(Filesystem::class)
             );
         });
+    }
 
-        $container->set(MigrationCreator::class, function (Container $c) {
+    protected function setMigrationCreator(Container $c)
+    {
+        $c->set(MigrationCreator::class, function (Container $c) {
             return new MigrationCreator($c->get(Filesystem::class));
         });
+    }
+
+    public function __invoke(Container $c)
+    {
+        $this->setCapsule($c);
+        $this->setDatabaseMigrationRepository($c);
+        $this->setMigrator($c);
+        $this->setMigrationCreator($c);
     }
 }

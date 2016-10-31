@@ -34,51 +34,53 @@ class CommandsServiceProvider
         $commands[] = $this->registerCommand($container, MigrateCommand::class, function (Container $c) {
             return new MigrateCommand(
                 $c->get(Args::class),
+                $c->get(OutputFormatter::class),
                 $c->get(Migrator::class),
-                $c->get('migration-path'),
-                $c->get(OutputFormatter::class)
+                $c->get('migration-path')
             );
         });
 
         $commands[] = $this->registerCommand($container, MigrateInstallCommand::class, function (Container $c) {
             return new MigrateInstallCommand(
                 $c->get(Args::class),
-                $c->get(DatabaseMigrationRepository::class),
-                $c->get(OutputFormatter::class)
+                $c->get(OutputFormatter::class),
+                $c->get(DatabaseMigrationRepository::class)
             );
         });
 
         $commands[] = $this->registerCommand($container, MigrateMakeCommand::class, function (Container $c) {
             return new MigrateMakeCommand(
                 $c->get(Args::class),
+                $c->get(OutputFormatter::class),
                 $c->get(MigrationCreator::class),
-                $c->get('migration-path'),
-                $c->get(OutputFormatter::class)
+                $c->get('migration-path')
             );
         });
 
         $commands[] = $this->registerCommand($container, MigrateResetCommand::class, function (Container $c) {
             return new MigrateResetCommand(
                 $c->get(Args::class),
+                $c->get(OutputFormatter::class),
                 $c->get(Migrator::class),
-                $c->get(OutputFormatter::class)
+                $c->get('migration-path')
             );
         });
 
         $commands[] = $this->registerCommand($container, MigrateRollbackCommand::class, function (Container $c) {
             return new MigrateRollbackCommand(
                 $c->get(Args::class),
+                $c->get(OutputFormatter::class),
                 $c->get(Migrator::class),
-                $c->get(OutputFormatter::class)
+                $c->get('migration-path')
             );
         });
 
         $commands[] = $this->registerCommand($container, MigrateStatusCommand::class, function (Container $c) {
             return new MigrateStatusCommand(
                 $c->get(Args::class),
+                $c->get(OutputFormatter::class),
                 $c->get(Migrator::class),
-                $c->get('migration-path'),
-                $c->get(OutputFormatter::class)
+                $c->get('migration-path')
             );
         });
 

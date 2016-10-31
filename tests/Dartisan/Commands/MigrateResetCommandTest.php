@@ -70,9 +70,9 @@ class MigrateResetCommandTest extends \PHPUnit_Framework_TestCase
         $migrateInstallCommand = $this->container->get(MigrateInstallCommand::class);
         $migrateCommand = new MigrateCommand(
             new Args(MigrateCommand::$name, ['step' => true]),
+            $this->container->get(OutputFormatter::class),
             $this->container->get(Migrator::class),
-            $this->container->get('migration-path'),
-            $this->container->get(OutputFormatter::class)
+            $this->container->get('migration-path')
         );
 
         $capsule = $this->container->get(Capsule::class);

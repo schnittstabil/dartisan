@@ -17,33 +17,62 @@ class ConfigServiceProvider
         return $value === false ? $default : $value;
     }
 
-    public function __invoke(Container $container)
+    protected function setEntry(Container $container, $option, $env, $default = null, $type = null)
     {
-        foreach ([
-            ['option' => 'connection-driver', 'env' => 'DB_DRIVER', 'default' => 'mysql'],
-            ['option' => 'connection-host', 'env' => 'DB_HOST', 'default' => 'localhost'],
-            ['option' => 'connection-database', 'env' => 'DB_DATABASE', 'default' => 'forge'],
-            ['option' => 'connection-username', 'env' => 'DB_USERNAME', 'default' => 'forge'],
-            ['option' => 'connection-password', 'env' => 'DB_PASSWORD', 'default' => ''],
-            ['option' => 'connection-schema', 'env' => 'DB_SCHEMA', 'default' => 'public'],
-            ['option' => 'connection-prefix', 'env' => 'DB_PREFIX', 'default' => ''],
-            ['option' => 'connection-charset', 'env' => 'DB_CHARSET', 'default' => 'utf8'],
-            ['option' => 'connection-collation', 'env' => 'DB_COLLATION', 'default' => 'utf8_unicode_ci'],
-            [
-                'option' => 'connection-strict', 'env' => 'DB_STRICT', 'default' => false,
-                'type' => FILTER_VALIDATE_BOOLEAN,
-            ],
-            ['option' => 'migration-path', 'env' => 'DB_MIGRATION_PATH', 'default' => 'database/migrations'],
-            ['option' => 'migration-table', 'env' => 'DB_MIGRATION_TABLE', 'default' => 'migrations'],
-        ] as $entry) {
-            $container->set($entry['option'], function (Container $c) use ($entry) {
-                $defaultValue = $this->env($entry['env'], $entry['default']);
-                if (isset($entry['type'])) {
-                    $defaultValue = filter_var($defaultValue, $entry['type']);
-                }
+        $container->set($option, function (Container $c) use ($option, $env, $default, $type) {
+            $defaultValue = $this->env($env, $default);
 
-                return $c->get(Args::class)->getOpt($entry['option'], $defaultValue);
-            });
-        }
+            if ($type !== null) {
+                $defaultValue = filter_var($defaultValue, $type);
+            }
+
+            return $c->get(Args::class)->getOpt($option, $defaultValue);
+        });
+    }
+
+    protected function setDatabaseDriver(Container $c)
+    {
+        $this->setEntry($c, 'connection-driver', 'DB_DRIVER', 'mysql');
+        $this->setEntry($c, 'connection-prefix', 'DB_PREFIX', '');
+        $this->setEntry($c, 'connection-charset', 'DB_CHARSET', 'utf8');
+    }
+
+    protected function setDatabaseConnection(Container $c)
+    {
+        $this->setEntry($c, 'connection-host', 'DB_HOST', 'localhost');
+        $this->setEntry($c, 'connection-database', 'DB_DATABASE', 'forge');
+    }
+
+    protected function setDatabaseCredentials(Container $c)
+    {
+        $this->setEntry($c, 'connection-username', 'DB_USERNAME', 'forge');
+        $this->setEntry($c, 'connection-password', 'DB_PASSWORD');
+    }
+
+    protected function setDatabasePostgreSqlOpts(Container $c)
+    {
+        $this->setEntry($c, 'connection-schema', 'DB_SCHEMA', 'public');
+    }
+
+    protected function setDatabaseMySqlOpts(Container $c)
+    {
+        $this->setEntry($c, 'connection-collation', 'DB_COLLATION', 'utf8_unicode_ci');
+        $this->setEntry($c, 'connection-strict', 'DB_STRICT', false, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    protected function setDatabaseAbstractionOpts(Container $c)
+    {
+        $this->setEntry($c, 'migration-path', 'DB_MIGRATION_PATH', 'database/migrations');
+        $this->setEntry($c, 'migration-table', 'DB_MIGRATION_TABLE', 'migrations');
+    }
+
+    public function __invoke(Container $c)
+    {
+        $this->setDatabaseDriver($c);
+        $this->setDatabaseConnection($c);
+        $this->setDatabaseCredentials($c);
+        $this->setDatabasePostgreSqlOpts($c);
+        $this->setDatabaseMySqlOpts($c);
+        $this->setDatabaseAbstractionOpts($c);
     }
 }

@@ -19,6 +19,8 @@ class OutputFormatter
 
     public function __invoke($text)
     {
-        return call_user_func($this->color, $text)->colorize();
+        $color = $this->color;
+
+        return $color($text)->colorize();
     }
 }

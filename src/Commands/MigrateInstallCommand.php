@@ -6,33 +6,33 @@ use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
 
-class MigrateInstallCommand
+class MigrateInstallCommand extends Command
 {
     use DatabaseAwareCommandTrait;
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:install';
-    protected $args;
     protected $repository;
-    protected $outputFormatter;
 
-    public function __construct(Args $args, MigrationRepositoryInterface $repository, callable $outputFormatter)
-    {
-        $this->args = $args;
+    public function __construct(
+        Args $args,
+        callable $outputFormatter,
+        MigrationRepositoryInterface $repository
+    ) {
+        parent::__construct($args, $outputFormatter);
         $this->repository = $repository;
-        $this->outputFormatter = $outputFormatter;
     }
 
-    public function __invoke()
+    public function run()
     {
         if ($this->repository->repositoryExists()) {
-            echo call_user_func($this->outputFormatter, '<info>Migration table already exists.</info>').PHP_EOL;
+            $this->echoInfo('Migration table already exists.');
 
             return 0;
         }
 
         $this->repository->createRepository();
-        echo call_user_func($this->outputFormatter, '<info>Migration table created successfully.</info>').PHP_EOL;
+        $this->echoInfo('Migration table created successfully.');
 
         return 0;
     }

@@ -25,6 +25,9 @@ after_success:
   - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then test-reporter; fi
   - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then coveralls -v; fi
 
+matrix:
+  allow_failures:
+    - php: hhvm
 
 addons:
   code_climate:

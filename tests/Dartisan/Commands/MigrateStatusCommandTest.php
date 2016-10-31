@@ -39,15 +39,16 @@ class MigrateStatusCommandTest extends \PHPUnit_Framework_TestCase
         $migrateInstallCommand = $this->container->get(MigrateInstallCommand::class);
         $migrateCommand = new MigrateCommand(
             new Args(MigrateCommand::$name, ['step' => true]),
+            $this->container->get(OutputFormatter::class),
             $this->container->get(Migrator::class),
-            $this->container->get('migration-path'),
-            $this->container->get(OutputFormatter::class)
+            $this->container->get('migration-path')
         );
 
         $rollbackCommand = new MigrateRollbackCommand(
             new Args(MigrateCommand::$name),
+            $this->container->get(OutputFormatter::class),
             $this->container->get(Migrator::class),
-            $this->container->get(OutputFormatter::class)
+            $this->container->get('migration-path')
         );
 
         $this->setOutputCallback(function ($output) {
@@ -110,7 +111,7 @@ class MigrateStatusCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->setOutputCallback(function ($output) {
             $output = trim($output);
-            $this->assertContains('<info>No migration files found</info>', $output);
+            $this->assertContains('<info>No migration files found.</info>', $output);
         });
 
         $migrateInstallCommand();
