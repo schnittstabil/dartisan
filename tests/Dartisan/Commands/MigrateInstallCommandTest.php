@@ -3,11 +3,18 @@
 namespace Schnittstabil\Dartisan\Commands;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
-class MigrateInstallCommandTest extends \PHPUnit_Framework_TestCase
+class MigrateInstallCommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
         array_map('unlink', glob('tests/temp/migrations/*'));
@@ -15,10 +22,8 @@ class MigrateInstallCommandTest extends \PHPUnit_Framework_TestCase
         $container = new Container();
         $container->set('connection-driver', 'sqlite');
         $container->set('connection-database', ':memory:');
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $container->set(OutputInterface::class, function () {
+            return new Output();
         });
 
         $this->container = $container;

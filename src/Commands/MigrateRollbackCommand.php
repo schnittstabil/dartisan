@@ -5,6 +5,7 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\Migrator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateRollbackCommand extends Command
 {
@@ -12,16 +13,24 @@ class MigrateRollbackCommand extends Command
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:rollback';
+
+    /**
+     * @var Migrator
+     */
     protected $migrator;
+
+    /**
+     * @var string
+     */
     protected $migrationsPath;
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         Migrator $migrator,
-        $migrationsPath
+        string $migrationsPath
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->migrator = $migrator;
         $this->migrationsPath = $migrationsPath;
     }
@@ -29,7 +38,7 @@ class MigrateRollbackCommand extends Command
     public function run()
     {
         if (!$this->migrator->repositoryExists()) {
-            $this->echoError('No migration table found.');
+            $this->output->error('No migration table found.');
 
             return 1;
         }
@@ -39,7 +48,6 @@ class MigrateRollbackCommand extends Command
             'pretend' => $this->args->getOpt('pretend', null),
             'step' => $this->args->getOpt('step', null),
         ]);
-        $this->echoNotes($this->migrator->getNotes());
 
         return 0;
     }

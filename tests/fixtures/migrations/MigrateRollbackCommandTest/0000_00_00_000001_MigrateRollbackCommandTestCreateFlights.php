@@ -4,7 +4,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class MigrateResetCommandTestCreateUsers extends Migration
+class MigrateRollbackCommandTestCreateFlights extends Migration
 {
     /**
      * Run the migrations.

@@ -1,12 +1,10 @@
 #!/usr/bin/env php
 <?php
 
-use Garden\Cli\Args;
 use Schnittstabil\Dartisan\Container;
 
 require 'vendor/autoload.php';
 
-$container = new Container();
-$cmd = $container->get('command');
+$cmd = (new Container())->get('command');
 
 exit($cmd());

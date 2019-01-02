@@ -5,6 +5,7 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\MigrationRepositoryInterface;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateInstallCommand extends Command
 {
@@ -16,23 +17,23 @@ class MigrateInstallCommand extends Command
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         MigrationRepositoryInterface $repository
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->repository = $repository;
     }
 
     public function run()
     {
         if ($this->repository->repositoryExists()) {
-            $this->echoInfo('Migration table already exists.');
+            $this->output->info('Migration table already exists.');
 
             return 0;
         }
 
         $this->repository->createRepository();
-        $this->echoInfo('Migration table created successfully.');
+        $this->output->info('Migration table created successfully.');
 
         return 0;
     }

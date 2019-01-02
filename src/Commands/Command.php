@@ -3,16 +3,24 @@
 namespace Schnittstabil\Dartisan\Commands;
 
 use Garden\Cli\Args;
+use Schnittstabil\Dartisan\OutputInterface;
 
 abstract class Command
 {
+    /**
+     * @var Args
+     */
     protected $args;
-    protected $outputFormatter;
 
-    public function __construct(Args $args, callable $outputFormatter)
+    /**
+     * @var callable
+     */
+    protected $output;
+
+    public function __construct(Args $args, OutputInterface $output)
     {
         $this->args = $args;
-        $this->outputFormatter = $outputFormatter;
+        $this->output = $output;
     }
 
     abstract protected function run();
@@ -22,47 +30,9 @@ abstract class Command
         try {
             return $this->run();
         } catch (\Exception $e) {
-            $this->echoError($e);
+            $this->output->error($e);
 
             return 2;
-        }
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    protected function echoRaw($msg, $eol = true)
-    {
-        $outputFormatter = $this->outputFormatter;
-        $output = $outputFormatter($msg);
-
-        if ($eol) {
-            $output .= PHP_EOL;
-        }
-
-        echo $output;
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    protected function echoError($msg, $eol = true)
-    {
-        $this->echoRaw('<error>'.$msg.'</error>', $eol);
-    }
-
-    /**
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     */
-    protected function echoInfo($msg, $eol = true)
-    {
-        $this->echoRaw('<info>'.$msg.'</info>', $eol);
-    }
-
-    protected function echoNotes($notes)
-    {
-        foreach ($notes as $note) {
-            $this->echoRaw($note);
         }
     }
 }

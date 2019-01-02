@@ -8,16 +8,18 @@
             "email": "michael@schnittstabil.de"
         }
     ],
+    "config": {
+        "sort-packages": true
+    },
     "require": {
-        "php": ">=5.6.0",
-        "illuminate/database": "~5.3.0",
-        "illuminate/filesystem": "~5.3.0",
+        "php": ">=7.2.0",
+        "illuminate/database": "~5.7.0",
+        "illuminate/filesystem": "~5.7.0",
         "kevinlebrun/colors.php": "^1.0",
-        "vanilla/garden-cli": "^1.6"
+        "vanilla/garden-cli": "^2.1"
     },
     "require-dev": {
-        "schnittstabil/sugared-cs": "^1.0",
-        "schnittstabil/sugared-phpunit": "^1.0"
+        "sugared-rim/phpunit": "^7.0"
     },
     "autoload": {
         "psr-4": { "Schnittstabil\\Dartisan\\": "src" }
@@ -30,10 +32,10 @@
         "psr-4": { "Schnittstabil\\Dartisan\\": "tests/Dartisan" }
     },
     "extra": {
-        "schnittstabil/sugared-phpmd": {
+        "sugared-rim/phpmd": {
             "inputPath": "src,tests/Dartisan"
         },
-        "schnittstabil/sugared-php_codesniffer": {
+        "sugared-rim/php_codesniffer": {
             "files": {
                 "notPath": [
                     "tests/fixtures",
@@ -41,7 +43,7 @@
                 ]
             }
         },
-        "schnittstabil\/sugared-php-cs-fixer": {
+        "sugared-rim/php-cs-fixer": {
             "path": {
                 "notPath": [
                     "tests/fixtures",
@@ -60,12 +62,12 @@
             "phpmetrics --report-html build/phpmetrics/index.html src/"
         ],
         "lint": [
-            "sugared-cs"
+            "sugared-rim-cs"
         ],
         "test": [
-            "sugared-phpunit",
-            "composer lint"
+            "@travis",
+            "@lint"
         ],
-        "travis": "sugared-phpunit"
+        "travis": "sugared-rim-phpunit"
     }
 }

@@ -2,12 +2,14 @@
 
 namespace Schnittstabil\Dartisan;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ContainerTest extends TestCase
 {
     public function testContainerShouldReturnOutputFormatter()
     {
         $container = new Container();
-        $sut = $container->get(OutputFormatter::class);
-        $this->assertInstanceOf(OutputFormatter::class, $sut);
+        $sut = $container->get(OutputInterface::class);
+        $this->assertInstanceOf(Output::class, $sut);
     }
 }

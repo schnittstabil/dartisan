@@ -5,14 +5,21 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Args;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Migrations\Migrator;
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
 /**
  * @SuppressWarnings(PHPMD.LongVariable)
  */
-class MigrateStatusCommandTest extends \PHPUnit_Framework_TestCase
+class MigrateStatusCommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
         array_map('unlink', glob('tests/temp/migrations/*'));
@@ -21,10 +28,8 @@ class MigrateStatusCommandTest extends \PHPUnit_Framework_TestCase
         $container->set('connection-driver', 'sqlite');
         $container->set('connection-database', ':memory:');
         $container->set('migration-path', 'tests/fixtures/migrations/MigrateStatusCommandTest');
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $container->set(OutputInterface::class, function () {
+            return new Output();
         });
 
         $this->container = $container;
@@ -39,14 +44,14 @@ class MigrateStatusCommandTest extends \PHPUnit_Framework_TestCase
         $migrateInstallCommand = $this->container->get(MigrateInstallCommand::class);
         $migrateCommand = new MigrateCommand(
             new Args(MigrateCommand::$name, ['step' => true]),
-            $this->container->get(OutputFormatter::class),
+            $this->container->get(OutputInterface::class),
             $this->container->get(Migrator::class),
             $this->container->get('migration-path')
         );
 
         $rollbackCommand = new MigrateRollbackCommand(
             new Args(MigrateCommand::$name),
-            $this->container->get(OutputFormatter::class),
+            $this->container->get(OutputInterface::class),
             $this->container->get(Migrator::class),
             $this->container->get('migration-path')
         );

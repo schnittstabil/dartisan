@@ -5,6 +5,7 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\MigrationCreator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateMakeCommand extends Command
 {
@@ -12,16 +13,24 @@ class MigrateMakeCommand extends Command
     use MigrationAwareCommandTrait;
 
     public static $name = 'make:migration';
+
+    /**
+     * @var MigrationCreator
+     */
     protected $migrationCreator;
+
+    /**
+     * @var string
+     */
     protected $migrationsPath;
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         MigrationCreator $migrationCreator,
-        $migrationsPath
+        string $migrationsPath
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->migrationCreator = $migrationCreator;
         $this->migrationsPath = $migrationsPath;
     }
@@ -34,9 +43,9 @@ class MigrateMakeCommand extends Command
         $table = $this->args->getOpt('table', $create);
 
         $file = pathinfo($this->migrationCreator->create($name, $path, $table, $create), PATHINFO_FILENAME);
-        $this->echoInfo('Created Migration:', false);
-        $this->echoRaw(' ', false);
-        $this->echoRaw($file);
+        $this->output->info('Created Migration:', false);
+        $this->output->raw(' ', false);
+        $this->output->raw($file);
 
         return 0;
     }

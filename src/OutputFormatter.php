@@ -17,7 +17,7 @@ class OutputFormatter
         ]);
     }
 
-    public function __invoke($text)
+    public function __invoke($text): string
     {
         $color = $this->color;
 

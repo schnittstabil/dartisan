@@ -13,8 +13,8 @@ use Schnittstabil\Dartisan\ServiceProviders\DatabaseServiceProvider;
  */
 class Container
 {
-    protected $factories = array();
-    protected $values = array();
+    protected $factories = [];
+    protected $values = [];
 
     public function __construct(array $argv = null)
     {

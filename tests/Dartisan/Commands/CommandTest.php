@@ -3,30 +3,33 @@
 namespace Schnittstabil\Dartisan\Commands;
 
 use Garden\Cli\Args;
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
-class CommandTest extends \PHPUnit_Framework_TestCase
+class CommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
-        $container = new Container();
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $this->container = new Container();
+        $this->container->set(OutputInterface::class, function () {
+            return new Output();
         });
-
-        $this->container = $container;
     }
 
     public function testExceptionInRunShouldBeHandled()
     {
         $this->container->set('argv', ['-', 'migrate']);
-        $outputFormatter = $this->container->get(OutputFormatter::class);
+        $output = $this->container->get(OutputInterface::class);
         $sut = new FlawedCommand(
             new Args('foo', []),
-            $outputFormatter
+            $output
         );
 
         $this->setOutputCallback(function ($output) {

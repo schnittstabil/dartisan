@@ -1,34 +1,32 @@
 language: php
 
-php:
-  - 5.6
-  - 7
-  - hhvm
-
-sudo: false
-
-install:
-  - composer global require schnittstabil/sugared-php_codesniffer fabpot/php-cs-fixer
-  - export PATH=$PATH:`composer global config bin-dir --absolute`
+matrix:
+  include:
+    - php: 7.2
+      env: QA=yes
+    - php: 7.3
+    - php: hhvm
+    - php: nightly
+  allow_failures:
+    - php: hhvm
+    - php: nightly
 
 install:
   - composer selfupdate
   - composer install
-  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then composer global require --update-no-dev codeclimate/php-test-reporter satooshi/php-coveralls fabpot/php-cs-fixer; fi
-  - export PATH=$PATH:`composer global config bin-dir --absolute`
+  - |
+    if [ "$QA" == "yes" ]; then
+      composer global require 'codeclimate/php-test-reporter:*' 'satooshi/php-coveralls:*' sugared-rim/cs:^2.1
+      export PATH=$PATH:`composer global config bin-dir --absolute`
+    fi
 
 script:
   - composer travis
-  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then composer lint; fi
+  - if [ "$QA" == "yes" ]; then composer lint; fi
 
 after_success:
-  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then test-reporter; fi
-  - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then coveralls -v; fi
-
-matrix:
-  allow_failures:
-    - php: hhvm
-
-addons:
-  code_climate:
-    repo_token: aa34b7adcdefe14e84c8291fa0201919be5cdf59b702f8ad87fb7863af9a17af
+  - |
+    if [ "$QA" == "yes" ]; then
+      travis_retry test-reporter
+      travis_retry coveralls -v
+    fi

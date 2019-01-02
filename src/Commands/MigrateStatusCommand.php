@@ -6,6 +6,7 @@ use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Garden\Cli\Table;
 use Illuminate\Database\Migrations\Migrator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateStatusCommand extends Command
 {
@@ -13,16 +14,24 @@ class MigrateStatusCommand extends Command
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:status';
+
+    /**
+     * @var Migrator
+     */
     protected $migrator;
+
+    /**
+     * @var string
+     */
     protected $migrationsPath;
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         Migrator $migrator,
-        $migrationsPath
+        string $migrationsPath
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->migrator = $migrator;
         $this->migrationsPath = $migrationsPath;
     }
@@ -30,7 +39,7 @@ class MigrateStatusCommand extends Command
     public function run()
     {
         if (!$this->migrator->repositoryExists()) {
-            $this->echoError('No migration table found.');
+            $this->output->error('No migration table found.');
 
             return 1;
         }
@@ -49,7 +58,7 @@ class MigrateStatusCommand extends Command
     protected function echoMigrationTable($ran, $migrationFiles)
     {
         if (count($migrationFiles) === 0) {
-            $this->echoInfo('No migration files found.');
+            $this->output->info('No migration files found.');
 
             return;
         }

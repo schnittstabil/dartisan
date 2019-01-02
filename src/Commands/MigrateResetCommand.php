@@ -5,6 +5,7 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Cli;
 use Garden\Cli\Args;
 use Illuminate\Database\Migrations\Migrator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateResetCommand extends Command
 {
@@ -12,16 +13,24 @@ class MigrateResetCommand extends Command
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate:reset';
+
+    /**
+     * @var Migrator
+     */
     protected $migrator;
+
+    /**
+     * @var string
+     */
     protected $migrationsPath;
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         Migrator $migrator,
-        $migrationsPath
+        string $migrationsPath
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->migrator = $migrator;
         $this->migrationsPath = $migrationsPath;
     }
@@ -29,15 +38,14 @@ class MigrateResetCommand extends Command
     public function run()
     {
         if (!$this->migrator->repositoryExists()) {
-            $this->echoError('No migration table found.');
+            $this->output->error('No migration table found.');
 
             return 1;
         }
 
         $path = $this->args->getOpt('path', $this->migrationsPath);
         $pretend = $this->args->getOpt('pretend', false);
-        $this->migrator->reset($path, $pretend);
-        $this->echoNotes($this->migrator->getNotes());
+        $this->migrator->reset([$path], $pretend);
 
         return 0;
     }

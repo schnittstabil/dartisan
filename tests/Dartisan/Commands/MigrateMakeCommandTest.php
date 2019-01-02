@@ -2,21 +2,26 @@
 
 namespace Schnittstabil\Dartisan\Commands;
 
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
-class MigrateMakeCommandTest extends \PHPUnit_Framework_TestCase
+class MigrateMakeCommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
         array_map('unlink', glob('tests/temp/migrations/*'));
 
         $container = new Container();
         $container->set('migration-path', 'tests/temp/migrations');
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $container->set(OutputInterface::class, function () {
+            return new Output();
         });
 
         $this->container = $container;

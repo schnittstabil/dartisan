@@ -5,9 +5,10 @@ namespace Schnittstabil\Dartisan\ServiceProviders;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Migrations\DatabaseMigrationRepository;
 use Illuminate\Database\Migrations\MigrationCreator;
-use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Filesystem\Filesystem;
 use Schnittstabil\Dartisan\Container;
+use Illuminate\Database\Migrations\Migrator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
@@ -39,10 +40,11 @@ class DatabaseServiceProvider
     protected function setMigrator(Container $c)
     {
         $c->set(Migrator::class, function (Container $c) {
-            return new Migrator(
+            return new \Schnittstabil\Dartisan\Migrator(
                 $c->get(DatabaseMigrationRepository::class),
                 $c->get(Capsule::class)->getDatabaseManager(),
-                $c->get(Filesystem::class)
+                $c->get(Filesystem::class),
+                $c->get(OutputInterface::class)
             );
         });
     }

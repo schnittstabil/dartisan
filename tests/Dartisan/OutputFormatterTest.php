@@ -2,7 +2,9 @@
 
 namespace Schnittstabil\Dartisan;
 
-class OutputFormatterTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class OutputFormatterTest extends TestCase
 {
     public function testUnformatedTextShouldntBeAltered()
     {

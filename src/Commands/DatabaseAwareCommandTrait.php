@@ -63,6 +63,10 @@ trait DatabaseAwareCommandTrait
         );
     }
 
+    /**
+     * @param Cli $cli
+     * @return Cli
+     */
     public static function registerDatabaseOpts(Cli $cli)
     {
         $cli = static::registerDatabaseDriver($cli);

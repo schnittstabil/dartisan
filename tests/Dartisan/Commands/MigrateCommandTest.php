@@ -3,14 +3,21 @@
 namespace Schnittstabil\Dartisan\Commands;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
 /**
  * @SuppressWarnings(PHPMD.LongVariable)
  */
-class MigrateCommandTest extends \PHPUnit_Framework_TestCase
+class MigrateCommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
         array_map('unlink', glob('tests/temp/migrations/*'));
@@ -19,10 +26,8 @@ class MigrateCommandTest extends \PHPUnit_Framework_TestCase
         $container->set('connection-driver', 'sqlite');
         $container->set('connection-database', ':memory:');
         $container->set('migration-path', 'tests/fixtures/migrations/MigrateCommandTest');
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $container->set(OutputInterface::class, function () {
+            return new Output();
         });
 
         $this->container = $container;
@@ -38,7 +43,7 @@ class MigrateCommandTest extends \PHPUnit_Framework_TestCase
 
         $this->setOutputCallback(function ($output) {
             $output = trim($output);
-            $this->assertContains('<info>Migrated:</info> 0000_00_00_000000_MigrateCommandTestCreateUsers', $output);
+            $this->assertContains('<info>Migrated:</info>  0000_00_00_000000_MigrateCommandTestCreateUsers', $output);
         });
 
         $this->assertFalse($capsule->schema()->hasTable('users'));

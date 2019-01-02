@@ -5,14 +5,21 @@ namespace Schnittstabil\Dartisan\Commands;
 use Garden\Cli\Args;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Migrations\Migrator;
+use PHPUnit\Framework\TestCase;
 use Schnittstabil\Dartisan\Container;
-use Schnittstabil\Dartisan\OutputFormatter;
+use Schnittstabil\Dartisan\Output;
+use Schnittstabil\Dartisan\OutputInterface;
 
 /**
  * @SuppressWarnings(PHPMD.LongVariable)
  */
-class MigrateRollbackCommandTest extends \PHPUnit_Framework_TestCase
+class MigrateRollbackCommandTest extends TestCase
 {
+    /**
+     * @var Container
+     */
+    protected $container;
+
     protected function setUp()
     {
         array_map('unlink', glob('tests/temp/migrations/*'));
@@ -21,10 +28,8 @@ class MigrateRollbackCommandTest extends \PHPUnit_Framework_TestCase
         $container->set('connection-driver', 'sqlite');
         $container->set('connection-database', ':memory:');
         $container->set('migration-path', 'tests/fixtures/migrations/MigrateResetCommandTest');
-        $container->set(OutputFormatter::class, function () {
-            return function ($text) {
-                return $text;
-            };
+        $container->set(OutputInterface::class, function () {
+            return new Output();
         });
 
         $this->container = $container;
@@ -43,11 +48,11 @@ class MigrateRollbackCommandTest extends \PHPUnit_Framework_TestCase
         $this->setOutputCallback(function ($output) {
             $output = trim($output);
             $this->assertContains(
-                '<info>Rolled back:</info> 0000_00_00_000001_MigrateResetCommandTestCreateFlights',
+                '<info>Rolled back:</info>  0000_00_00_000001_MigrateResetCommandTestCreateFlights',
                 $output
             );
             $this->assertContains(
-                '<info>Rolled back:</info> 0000_00_00_000000_MigrateResetCommandTestCreateUsers',
+                '<info>Rolled back:</info>  0000_00_00_000000_MigrateResetCommandTestCreateUsers',
                 $output
             );
             $this->assertSame(2, substr_count($output, 'Rolled back'));
@@ -71,7 +76,7 @@ class MigrateRollbackCommandTest extends \PHPUnit_Framework_TestCase
         $migrateInstallCommand = $this->container->get(MigrateInstallCommand::class);
         $migrateCommand = new MigrateCommand(
             new Args(MigrateCommand::$name, ['step' => true]),
-            $this->container->get(OutputFormatter::class),
+            $this->container->get(OutputInterface::class),
             $this->container->get(Migrator::class),
             $this->container->get('migration-path')
         );
@@ -82,11 +87,11 @@ class MigrateRollbackCommandTest extends \PHPUnit_Framework_TestCase
         $this->setOutputCallback(function ($output) {
             $output = trim($output);
             $this->assertContains(
-                '<info>Rolled back:</info> 0000_00_00_000001_MigrateResetCommandTestCreateFlights',
+                '<info>Rolled back:</info>  0000_00_00_000001_MigrateResetCommandTestCreateFlights',
                 $output
             );
             $this->assertNotContains(
-                '<info>Rolled back:</info> 0000_00_00_000000_MigrateResetCommandTestCreateUsers',
+                '<info>Rolled back:</info>  0000_00_00_000000_MigrateResetCommandTestCreateUsers',
                 $output
             );
             $this->assertSame(1, substr_count($output, 'Rolled back'));

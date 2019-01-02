@@ -4,7 +4,8 @@ namespace Schnittstabil\Dartisan\Commands;
 
 use Garden\Cli\Cli;
 use Garden\Cli\Args;
-use Illuminate\Database\Migrations\Migrator;
+use Schnittstabil\Dartisan\Migrator;
+use Schnittstabil\Dartisan\OutputInterface;
 
 class MigrateCommand extends Command
 {
@@ -12,16 +13,24 @@ class MigrateCommand extends Command
     use MigrationAwareCommandTrait;
 
     public static $name = 'migrate';
+
+    /**
+     * @var Migrator
+     */
     protected $migrator;
+
+    /**
+     * @var string
+     */
     protected $defaultPath;
 
     public function __construct(
         Args $args,
-        callable $outputFormatter,
+        OutputInterface $output,
         Migrator $migrator,
-        $defaultPath
+        string $defaultPath
     ) {
-        parent::__construct($args, $outputFormatter);
+        parent::__construct($args, $output);
         $this->migrator = $migrator;
         $this->defaultPath = $defaultPath;
     }
@@ -33,7 +42,6 @@ class MigrateCommand extends Command
             'pretend' => $this->args->getOpt('pretend', null),
             'step' => $this->args->getOpt('step', null),
         ]);
-        $this->echoNotes($this->migrator->getNotes());
 
         return 0;
     }
